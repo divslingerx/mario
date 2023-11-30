@@ -3,9 +3,8 @@ import { Compositor } from "./Compositor";
 import { EventEmitter } from "./EventEmitter";
 import { GameContext } from "./GameContext";
 
-export class Scene {
+export  class Scene {
   static EVENT_COMPLETE = Symbol("scene complete");
-
   comp = new Compositor();
   events = new EventEmitter();
 

@@ -1,35 +1,33 @@
-import { createAnimation } from "../animation";
-import { loadImage, loadJSON } from "../loaders";
-import { SpriteSheet } from "../SpriteSheet";
-import { SpriteSheetSpec } from "./types";
+import { loadJSON, loadImage } from "../loaders";
+import {SpriteSheet} from "../SpriteSheet";
+import { createAnim } from "../anim";
+import {SpriteSheetSpec} from '../types';
 
-export async function loadSpriteSheet(name: string) {
-  const url = `sprites/${name}.json`;
-  const sheetSpec = await loadJSON<SpriteSheetSpec>(url);
-  const image = await loadImage(sheetSpec.imageURL);
 
-  const sprites = new SpriteSheet(image, sheetSpec.tileW, sheetSpec.tileH);
 
-  if (sheetSpec.tiles) {
-    sheetSpec.tiles.forEach((tileSpec) => {
-      const [x, y] = tileSpec.index;
-      sprites.defineTile(tileSpec.name, x, y);
+export const loadSpriteSheet = async (name: string) => {
+  const specSheet = await loadJSON<SpriteSheetSpec>(`/sprites/${name}.json`);
+  const image = await loadImage(specSheet.imageURL);
+  const sprites = new SpriteSheet(image, specSheet.tileW, specSheet.tileH);
+
+  if (specSheet.tiles) {
+    specSheet.tiles.forEach((tileSpec) => {
+      sprites.defineTile(tileSpec.name, tileSpec.index[0], tileSpec.index[1]);
     });
   }
 
-  if (sheetSpec.frames) {
-    sheetSpec.frames.forEach((frameSpec) => {
-      const [x, y, width, height] = frameSpec.rect;
-      sprites.define(frameSpec.name, x, y, width, height);
+  if (specSheet.frames) {
+    specSheet.frames.forEach((frameSpec) => {
+      sprites.define(frameSpec.name, ...frameSpec.rect);
     });
   }
 
-  if (sheetSpec.animations) {
-    sheetSpec.animations.forEach((animSpec) => {
-      const animation = createAnimation(animSpec.frames, animSpec.frameLength);
-      sprites.defineAnimation(animSpec.name, animation);
+  if (specSheet.animations) {
+    specSheet.animations.forEach((animSpec) => {
+      const animation = createAnim(animSpec.frames, animSpec.frameLen);
+      sprites.defineAnim(animSpec.name, animation);
     });
   }
 
   return sprites;
-}
+};

@@ -1,19 +1,13 @@
-export function loadImage(url: string) {
-  return new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new Image();
-
-    image.addEventListener("load", () => {
-      resolve(image);
+export async function loadImage(url: string): Promise<HTMLImageElement> {
+    return new Promise((resolve) => {
+        const image = new Image();
+        image.addEventListener('load', () => {
+            resolve(image);
+        });
+        image.src = url;
     });
-
-    image.addEventListener("error", (event) => {
-      reject(`Could not load image from ${url}`);
-    });
-
-    image.src = url;
-  });
 }
-
-export function loadJSON<T>(url: string): Promise<T> {
-  return fetch(url).then((res) => res.json());
+export const loadJSON = async<T>(url: string): Promise<T> => {
+    return fetch(url)
+    .then(r => r.json()).catch(err => err);
 }

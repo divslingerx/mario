@@ -1,28 +1,30 @@
 import { GameContext } from "./GameContext";
 import { Scene } from "./Scene";
 
-export class SceneRunner {
-  sceneIndex = -1;
-  scenes: Scene[] = [];
-
-  get currentScene(): Scene | undefined {
-    return this.scenes[this.sceneIndex];
-  }
+export  class SceneRunner {
+  public sceneIndex = -1;
+  public scenes: Scene[] = [];
 
   addScene(scene: Scene) {
-    this.scenes.push(scene);
     scene.events.listen(Scene.EVENT_COMPLETE, () => {
       this.runNext();
     });
+    this.scenes.push(scene);
   }
 
   runNext() {
-    this.currentScene?.pause();
-    this.sceneIndex += 1;
+    const currentScene = this.scenes[this.sceneIndex];
+    if (currentScene) {
+      currentScene.pause();
+    }
+    this.sceneIndex++;
   }
 
   update(gameContext: GameContext) {
-    this.currentScene?.update(gameContext);
-    this.currentScene?.draw(gameContext);
+    const currentScene = this.scenes[this.sceneIndex];
+    if (currentScene) {
+      currentScene.update(gameContext);
+      currentScene.draw(gameContext);
+    }
   }
 }

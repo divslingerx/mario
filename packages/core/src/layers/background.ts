@@ -1,57 +1,41 @@
-import { Camera } from "../Camera";
-import { Level } from "../Level";
-import { raise } from "../raise";
-import { SpriteSheet } from "../SpriteSheet";
-import { TileResolver, TileResolverMatrix } from "../TileResolver";
+import { Camera } from '../Camera.js';
+import { Level } from '../Level.js';
+import { SpriteSheet } from '../SpriteSheet.js';
+import {TileResolver, TileResolverMatrix} from '../TileResolver.js';
+import { createCanvas } from '../utils/helpers/createCanvasGetCtx.js';
 
-export function createBackgroundLayer(
-  level: Level,
-  tiles: TileResolverMatrix,
-  sprites: SpriteSheet
-) {
-  const tileResolver = new TileResolver(tiles);
+export function createBackgroundLayer(level: Level, tiles: TileResolverMatrix, sprites: SpriteSheet) {
+    const resolver = new TileResolver(tiles);
 
-  const buffer = document.createElement("canvas");
-  buffer.width = 256 + 16;
-  buffer.height = 240;
+    const [buffer, context] = createCanvas(256 + 16, 240);
 
-  const context = buffer.getContext("2d") || raise("Canvas not supported");
+    
 
-  function drawTiles(startIndex: number, endIndex: number) {
-    context.clearRect(0, 0, buffer.width, buffer.height);
+    function redraw(startIndex: number, endIndex: number)  {
+        context.clearRect(0, 0, buffer.width, buffer.height);
 
-    const items = tiles.itemsInRange(
-      startIndex,
-      0,
-      endIndex,
-      buffer.height / 16
-    );
-
-    for (const [tile, x, y] of items) {
-      if (!tile.name) continue;
-      if (sprites.animations.has(tile.name)) {
-        sprites.drawAnimation(
-          tile.name,
-          context,
-          x - startIndex,
-          y,
-          level.totalTime
-        );
-      } else {
-        sprites.drawTile(tile.name, context, x - startIndex, y);
-      }
+        for (let x = startIndex; x <= endIndex; ++x) {
+            const col = tiles.grid[x];
+            if (col) {
+                col.forEach((tile, y) => {
+                    if (sprites.animations.has(tile.style)) {
+                        sprites.drawAnim(tile.style, context, x - startIndex, y, level.totalTime);
+                    } else {
+                        sprites.drawTile(tile.style, context, x - startIndex, y);
+                    }
+                });
+            }
+        }
     }
-  }
 
-  return function drawBackgroundLayer(
-    context: CanvasRenderingContext2D,
-    camera: Camera
-  ) {
-    const drawWidth = tileResolver.toIndex(camera.size.x);
-    const drawFrom = tileResolver.toIndex(camera.pos.x);
-    const drawTo = drawFrom + drawWidth;
-    drawTiles(drawFrom, drawTo);
+    return function drawBackgroundLayer(context: CanvasRenderingContext2D, camera: Camera) {
+        const drawWidth = resolver.toIndex(camera.size.x);
+        const drawFrom = resolver.toIndex(camera.pos.x);
+        const drawTo = drawFrom + drawWidth;
+        redraw(drawFrom, drawTo);
 
-    context.drawImage(buffer, -camera.pos.x % 16, -camera.pos.y);
-  };
+        context.drawImage(buffer,
+            Math.floor(-camera.pos.x % 16),
+            Math.floor(-camera.pos.y));
+    };
 }

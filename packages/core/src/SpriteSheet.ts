@@ -1,25 +1,25 @@
-import { Animation } from "./animation";
-import { raise } from "./raise";
+export type Animation = (distance: number) => string;
+import { createCanvas } from "./utils/helpers/createCanvasGetCtx";
 
-export class SpriteSheet {
+export  class SpriteSheet {
   tiles = new Map<string, HTMLCanvasElement[]>();
   animations = new Map<string, Animation>();
 
   constructor(
     public image: HTMLImageElement,
-    public tileWidth: number,
-    public tileHeight: number
+    public width: number,
+    public height: number
   ) {}
 
+  defineAnim(name: string, animation: (distance: number) => any) {
+    this.animations.set(name, animation);
+  }
+
   define(name: string, x: number, y: number, width: number, height: number) {
-    const buffers = [false, true].map((flipped) => {
-      const buffer = document.createElement("canvas");
-      buffer.width = width;
-      buffer.height = height;
+    const buffers = [false, true].map((flip) => {
+      const [buffer, context] = createCanvas(width, height);
 
-      const context = buffer.getContext("2d") || raise("Canvas not supported");
-
-      if (flipped) {
+      if (flip) {
         context.scale(-1, 1);
         context.translate(-width, 0);
       }
@@ -33,17 +33,7 @@ export class SpriteSheet {
   }
 
   defineTile(name: string, x: number, y: number) {
-    this.define(
-      name,
-      x * this.tileWidth,
-      y * this.tileHeight,
-      this.tileWidth,
-      this.tileHeight
-    );
-  }
-
-  defineAnimation(name: string, animation: Animation) {
-    this.animations.set(name, animation);
+    this.define(name, x * this.width, y * this.height, this.width, this.height);
   }
 
   draw(
@@ -60,16 +50,7 @@ export class SpriteSheet {
     context.drawImage(buffers[flip ? 1 : 0], x, y);
   }
 
-  drawTile(
-    name: string,
-    context: CanvasRenderingContext2D,
-    x: number,
-    y: number
-  ) {
-    this.draw(name, context, x * this.tileWidth, y * this.tileHeight);
-  }
-
-  drawAnimation(
+  drawAnim(
     name: string,
     context: CanvasRenderingContext2D,
     x: number,
@@ -83,11 +64,12 @@ export class SpriteSheet {
     this.drawTile(animation(distance), context, x, y);
   }
 
-  getAnimation(name: string) {
-    const anim = this.animations.get(name);
-    if (!anim) {
-      throw new Error(`Animation not found: ${name}`);
-    }
-    return anim;
+  drawTile(
+    name: string,
+    context: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+  ) {
+    this.draw(name, context, x * this.width, y * this.height)
   }
 }

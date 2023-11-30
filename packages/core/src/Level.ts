@@ -1,25 +1,70 @@
-import { Camera } from "./Camera";
-import { Entity } from "./Entity";
-import { EntityCollider } from "./EntityCollider";
-import { GameContext } from "./GameContext";
-import { MusicController } from "./MusicController";
-import { findPlayers } from "./player";
-import { Scene } from "./Scene";
-import { TileCollider } from "./TileCollider";
+import {Camera} from "./Camera.js";
+import MusicController from "./MusicController.js";
+import EntityCollider from "./EntityCollider.js";
+import {Scene} from "./Scene.js";
+import TileCollider from "./TileCollider.js";
+import { clamp } from "./math.js";
+import { findPlayers } from "./player.js";
+import { GameContext } from "./GameContext.js";
+
+function focusPlayer(level: Level) {
+  for (const player of findPlayers(level.entities)) {
+    level.camera.pos.x = clamp(
+      player.pos.x - 100,
+      level.camera.min.x,
+      level.camera.max.x - level.camera.size.x
+    );
+  }
+}
+
+export class EntityCollection extends Set {
+  get(id: string) {
+    for (const entity of this) {
+      if (entity.id === id) {
+        return entity;
+      }
+    }
+  }
+}
 
 export class Level extends Scene {
   static EVENT_TRIGGER = Symbol("trigger");
+  static EVENT_COMPLETE = Symbol("complete");
 
-  name = "";
+  name: string;
+    checkpoints: any[];
+    gravity: number;
+    totalTime: number;
+    camera: Camera;
+    music: MusicController;
+    entities: EntityCollection;
+    entityCollider: EntityCollider;
+    tileCollider: TileCollider;
+  
 
-  entities = new Set<Entity>();
-  entityCollider = new EntityCollider(this.entities);
-  tileCollider = new TileCollider();
-  music = new MusicController();
-  camera = new Camera();
+  constructor() {
+    super();
 
-  gravity = 1500;
-  totalTime = 0;
+    this.name = "";
+
+    this.checkpoints = [];
+
+    this.gravity = 1500;
+    this.totalTime = 0;
+
+    this.camera = new Camera();
+
+    this.music = new MusicController();
+
+    this.entities = new EntityCollection();
+
+    this.entityCollider = new EntityCollider(this.entities);
+    this.tileCollider = new TileCollider();
+  }
+
+  draw(gameContext: GameContext) {
+    this.comp.draw(gameContext.videoContext, this.camera);
+  }
 
   update(gameContext: GameContext) {
     this.entities.forEach((entity) => {
@@ -34,22 +79,12 @@ export class Level extends Scene {
       entity.finalize();
     });
 
-    this.totalTime += gameContext.deltaTime;
-
     focusPlayer(this);
-  }
 
-  draw(gameContext: GameContext) {
-    this.comp.draw(gameContext.videoContext, this.camera);
+    this.totalTime += gameContext.deltaTime;
   }
 
   pause() {
     this.music.pause();
-  }
-}
-
-function focusPlayer(level: Level) {
-  for (const player of findPlayers(level.entities)) {
-    level.camera.pos.x = Math.max(0, player.pos.x - 100);
   }
 }

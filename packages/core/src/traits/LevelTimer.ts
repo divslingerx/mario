@@ -1,33 +1,56 @@
+import { Camera } from "../Camera";
 import { Entity } from "../Entity";
+import EntityCollider from "../EntityCollider";
 import { GameContext } from "../GameContext";
-import { Level } from "../Level";
+import { EntityCollection, Level } from "../Level";
+import MusicController from "../MusicController";
+import { Scene } from "../Scene";
+import TileCollider from "../TileCollider";
 import { Trait } from "../Trait";
 
-// Define a class named "LevelTimer" that extends the "Trait" class
-export class LevelTimer extends Trait {
-  // Define static event symbols
+const MARK = Symbol("level timer earmark");
+
+export default class LevelTimer extends Trait {
   static EVENT_TIMER_HURRY = Symbol("timer hurry");
   static EVENT_TIMER_OK = Symbol("timer ok");
 
-  totalTime = 300; // Total time for the level
-  currentTime = this.totalTime; // Current time remaining
-  hurryTime = 100; // Time at which "hurry" event is emitted
-  hurryEmitted?: boolean; // Flag indicating if "hurry" event has been emitted
+  totalTime = 300;
+  currentTime = this.totalTime;
+  hurryTime = 100;
+  hurryEmitted?: boolean | null;
 
-  // Update method that takes an entity, game context, and level as parameters
+  constructor() {
+    super();
+    this.totalTime = 400;
+    this.currentTime = this.totalTime;
+    this.hurryTime = 100;
+    this.hurryEmitted = null;
+  }
+
+  reset() {
+    this.currentTime = this.totalTime;
+  }
+
   update(entity: Entity, { deltaTime }: GameContext, level: Level) {
-    this.currentTime -= deltaTime * 2; // Update the current time based on deltaTime
+    this.currentTime -= deltaTime * 2.5;
+
+    // if (!level[MARK]) {
+    //   this.hurryEmitted = null;
+    // }
 
     if (this.hurryEmitted !== true && this.currentTime < this.hurryTime) {
-      // If "hurry" event has not been emitted and current time is less than hurry time
-      level.events.emit(LevelTimer.EVENT_TIMER_HURRY); // Emit "hurry" event
-      this.hurryEmitted = true; // Set the flag as true
+      level.events.emit(LevelTimer.EVENT_TIMER_HURRY);
+      this.hurryEmitted = true;
+    }
+    if (this.hurryEmitted !== false && this.currentTime > this.hurryTime) {
+      level.events.emit(LevelTimer.EVENT_TIMER_OK);
+      this.hurryEmitted = false;
     }
 
-    if (this.hurryEmitted !== false && this.currentTime > this.hurryTime) {
-      // If "hurry" event has been emitted and current time is greater than hurry time
-      level.events.emit(LevelTimer.EVENT_TIMER_OK); // Emit "ok" event
-      this.hurryEmitted = false; // Set the flag as false
-    }
+    // level[MARK] = true;
   }
 }
+
+
+
+

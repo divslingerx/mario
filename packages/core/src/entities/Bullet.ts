@@ -1,56 +1,63 @@
-import { Entity } from "../Entity";
-import { GameContext } from "../GameContext";
-import { Level } from "../Level";
-import { loadSpriteSheet } from "../loaders/sprite";
-import { Trait } from "../Trait";
-import { Gravity } from "../traits/Gravity";
-import { Killable } from "../traits/Killable";
-import { Stomper } from "../traits/Stomper";
-import { Velocity } from "../traits/Velocity";
-
-class BulletBehavior extends Trait {
-  gravity = new Gravity();
-
-  collides(us: Entity, them: Entity) {
-    if (us.getTrait(Killable)?.dead) {
-      return;
-    }
-
-    const stomper = them.getTrait(Stomper);
-    if (stomper) {
-      if (them.vel.y > us.vel.y) {
-        us.getTrait(Killable)?.kill();
-        us.vel.set(100, -200);
-      } else {
-        them.getTrait(Killable)?.kill();
-      }
-    }
-  }
-
-  update(entity: Entity, gameContext: GameContext, level: Level) {
-    if (entity.getTrait(Killable)?.dead) {
-      this.gravity.update(entity, gameContext, level);
-    }
-  }
-}
+import {Entity} from '../Entity';
+import {Trait} from '../Trait.js';
+import {Killable} from '../traits/Killable';
+import {Gravity} from '../traits/Gravity';
+import {Stomper} from '../traits/Stomper';
+import {Velocity} from '../traits/Velocity';
+import {loadSpriteSheet} from '../loaders/sprite';
+import { GameContext } from '../GameContext';
+import { Level } from '../Level';
+import {SpriteSheet} from '../SpriteSheet';
 
 export async function loadBullet() {
-  const sprites = await loadSpriteSheet("bullet");
+    const sprite = await loadSpriteSheet('bullet');
+    return createBulletFactory(sprite);
+}
 
-  return function createBullet() {
-    const bullet = new Entity();
 
-    bullet.size.set(16, 14);
-    bullet.vel.set(80, 0);
+class Behavior extends Trait {
+    gravity = new Gravity()
+ 
 
-    bullet.addTrait(new BulletBehavior());
-    bullet.addTrait(new Killable());
-    bullet.addTrait(new Velocity());
+    collides(us: Entity, them: Entity) {
+        if (us.getTrait(Killable)?.dead) {
+            return;
+        }
 
-    bullet.draw = (context) => {
-      sprites.draw("bullet", context, 0, 0, bullet.vel.x < 0);
+        console.log('Collision in Bullet', them.vel.y);
+        if (them.traits.has(Stomper)) {
+            if (them.vel.y > us.vel.y) {
+                us.getTrait(Killable)?.kill();
+                us.vel.set(100, -200);
+            } else {
+                them.getTrait(Killable)?.kill();
+            }
+        }
+    }
+
+    update(entity: Entity, gameContext: GameContext, level: Level) {
+        if (entity.getTrait(Killable)?.dead) {
+            this.gravity.update(entity, gameContext, level);
+        }
+    }
+}
+
+
+function createBulletFactory(sprite: SpriteSheet) {
+    function drawBullet(this: any, context: CanvasRenderingContext2D) {
+        sprite.draw('bullet', context, 0, 0, this.vel.x > 0);
+    }
+
+    return function createBullet() {
+        const bullet = new Entity();
+        bullet.size.set(16, 14);
+
+        bullet.addTrait(new Velocity());
+        bullet.addTrait(new Behavior());
+        bullet.addTrait(new Killable());
+
+        bullet.draw = drawBullet;
+
+        return bullet;
     };
-
-    return bullet;
-  };
 }

@@ -1,15 +1,17 @@
 import { Entity } from "./Entity";
 
-export class EntityCollider {
-  constructor(public entities: Set<Entity>) {}
+export default class EntityCollider {
+    constructor(public entities: Set<Entity>) {}
 
-  check(subject: Entity) {
-    for (const candidate of this.entities) {
-      if (subject === candidate) continue;
+    check(subject: Entity) {
+        this.entities.forEach(candidate => {
+            if (subject === candidate) {
+                return;
+            }
 
-      if (subject.bounds.overlaps(candidate.bounds)) {
-        subject.collides(candidate);
-      }
+            if (subject.bounds.overlaps(candidate.bounds)) {
+                subject.collides(candidate);
+            }
+        });
     }
-  }
 }

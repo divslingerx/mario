@@ -10,24 +10,25 @@ function createEntityLayer(entities: Set<Entity>) {
   ) {
     context.strokeStyle = "red";
     entities.forEach((entity) => {
-      context.strokeRect(
+      context.beginPath();
+      context.rect(
         entity.bounds.left - camera.pos.x,
         entity.bounds.top - camera.pos.y,
         entity.size.x,
         entity.size.y
       );
+      context.stroke();
     });
   };
 }
 
 function createTileCandidateLayer(tileResolver: TileResolver) {
-  const tileSize = tileResolver.tileSize;
   const resolvedTiles = [] as Array<{ x: number; y: number }>;
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const getByIndexOriginal = tileResolver.getByIndex;
+  const tileSize = tileResolver.tileSize;
 
-  tileResolver.getByIndex = function getByIndexFake(x: number, y: number) {
+  const getByIndexOriginal = tileResolver.getByIndex;
+  tileResolver.getByIndex = function getByIndexFake(x, y) {
     resolvedTiles.push({ x, y });
     return getByIndexOriginal.call(tileResolver, x, y);
   };
@@ -37,14 +38,15 @@ function createTileCandidateLayer(tileResolver: TileResolver) {
     camera: Camera
   ) {
     context.strokeStyle = "blue";
-
     resolvedTiles.forEach(({ x, y }) => {
-      context.strokeRect(
+      context.beginPath();
+      context.rect(
         x * tileSize - camera.pos.x,
         y * tileSize - camera.pos.y,
         tileSize,
         tileSize
       );
+      context.stroke();
     });
 
     resolvedTiles.length = 0;

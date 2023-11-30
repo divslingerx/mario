@@ -6,9 +6,10 @@ import {
   TileResolverMatch,
   TileResolverMatrix,
 } from "./TileResolver";
-import { brick } from "./tiles/brick";
-import { coin } from "./tiles/coin";
-import { ground } from "./tiles/ground";
+
+import { brick } from "./tiles/brick.js";
+import { coin } from "./tiles/coin.js";
+import { ground } from "./tiles/ground.js";
 import { Dict } from "./types";
 
 export type TileColliderContext = {
@@ -28,7 +29,7 @@ const handlers: Dict<TileColliderHandler[]> = {
   coin,
 };
 
-export class TileCollider {
+export default class TileCollider {
   resolvers: TileResolver[] = [];
 
   addGrid(tileMatrix: TileResolverMatrix) {
@@ -53,9 +54,9 @@ export class TileCollider {
         entity.bounds.bottom
       );
 
-      for (const match of matches) {
+      matches.forEach((match) => {
         this.handle(0, entity, match, resolver, gameContext, level);
-      }
+      });
     }
   }
 
@@ -77,9 +78,9 @@ export class TileCollider {
         y
       );
 
-      for (const match of matches) {
+      matches.forEach((match) => {
         this.handle(1, entity, match, resolver, gameContext, level);
-      }
+      });
     }
   }
 
@@ -91,7 +92,7 @@ export class TileCollider {
     gameContext: GameContext,
     level: Level
   ) {
-    const tileCollisionContext: TileColliderContext = {
+    const tileCollisionContext = {
       entity,
       match,
       resolver,
@@ -100,5 +101,7 @@ export class TileCollider {
     };
 
     handlers[match.tile.type]?.[index]?.(tileCollisionContext);
+
+    
   }
 }
