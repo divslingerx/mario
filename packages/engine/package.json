@@ -1,0 +1,27 @@
+{
+  "name": "@js2d/engine",
+  "version": "0.1.0",
+  "description": "AI-first game engine for emergent, dynamic worlds with intelligent NPCs and cascading interactions",
+  "keywords": ["game-engine", "ai", "goap", "emergent-behavior", "simulation", "npc", "ecs", "bitecs"],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "bitecs": "^0.3.40",
+    "pixi.js": "^8.0.0",
+    "@dimforge/rapier2d": "^0.12.0"
+  }
+}

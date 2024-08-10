@@ -1,0 +1,26 @@
+{
+  "name": "@js2d/docs",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "pnpm run build:api && vitepress build",
+    "build:api": "typedoc",
+    "preview": "vitepress preview",
+    "examples": "vite examples --config examples/vite.config.ts"
+  },
+  "dependencies": {
+    "@js2d/engine": "workspace:*",
+    "@js2d/traits-physics": "workspace:*",
+    "@js2d/traits-topdown": "workspace:*",
+    "@js2d/traits-procedural": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.3",
+    "typedoc": "^0.25.0",
+    "vitepress": "^1.0.0",
+    "vite": "^5.4.0",
+    "vitest": "^1.0.0"
+  }
+}

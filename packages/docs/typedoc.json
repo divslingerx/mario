@@ -1,0 +1,60 @@
+{
+  "entryPoints": [
+    "../engine/src/index.ts",
+    "../traits-physics/src/index.ts", 
+    "../traits-topdown/src/index.ts",
+    "../traits-procedural/src/index.ts"
+  ],
+  "out": ".vitepress/dist/api",
+  "name": "JS2D Game Engine API",
+  "readme": "none",
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "defaultCategory": "Core",
+  "categoryOrder": [
+    "Core",
+    "Components", 
+    "Systems",
+    "Physics",
+    "RPG",
+    "Procedural",
+    "Utilities"
+  ],
+  "groupOrder": [
+    "Core Engine",
+    "Physics Traits", 
+    "RPG Traits",
+    "Procedural Generation",
+    "Utilities"
+  ],
+  "sort": ["source-order", "alphabetical"],
+  "kindSortOrder": [
+    "Document",
+    "Project", 
+    "Module",
+    "Namespace",
+    "Enum",
+    "EnumMember",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Constructor",
+    "Property",
+    "Variable",
+    "Function",
+    "Accessor",
+    "Method"
+  ],
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": true
+  },
+  "plugin": ["typedoc-plugin-mdn-links"],
+  "theme": "default",
+  "hideGenerator": true,
+  "visibilityFilters": {
+    "protected": false,
+    "private": false,
+    "@internal": false
+  }
+}
