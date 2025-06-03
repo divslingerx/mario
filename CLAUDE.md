@@ -4,47 +4,118 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- **Development**: `pnpm dev` - Start development server with Vite
-- **Build**: `pnpm build` - Compile TypeScript and build with Vite  
-- **Preview**: `pnpm preview` - Preview built application
+### Monorepo Commands
+- **Development**: `pnpm dev` - Start Mario demo development server (default)
+- **Build All**: `pnpm build` - Build all packages in workspace
+- **Install**: `pnpm install` - Install dependencies for all packages
+
+### Package-Specific Commands
+Run from package directory or with `pnpm --filter <package-name>`:
+- **Engine packages**: `pnpm build` (TypeScript compilation)
+- **Demo packages**: `pnpm dev` (Vite dev server), `pnpm build` (production build)
+- **AI Apocalypse**: `pnpm --filter @js2d/ai-apocalypse dev`
 
 ## Architecture
 
-This is a TypeScript rewrite of a Super Mario Bros game engine using an Entity-Component System pattern.
+This is a modular 2D game engine built with TypeScript, evolving from a Mario Bros clone into a general-purpose game framework with AI capabilities.
+
+### Monorepo Structure
+
+```
+packages/
+├── engine/              # Core game engine (@js2d/engine)
+├── mario-demo/          # Classic Mario implementation
+├── ai-apocalypse/       # AI survival RPG game
+├── traits-ai/           # GOAP AI behaviors
+├── traits-emergent/     # State propagation & emergent behaviors
+├── traits-physics/      # Rapier2D physics integration
+├── traits-procedural/   # Procedural generation
+└── docs/                # Documentation site
+```
 
 ### Core Systems
 
-**Entity-Trait System**: Entities are composed of reusable traits (components). Use `entity.addTrait()` to attach behaviors and `entity.getTrait()` to access them. Traits handle specific behaviors like physics, movement, collision, etc.
+**Entity-Trait System**: Entities are composed of reusable traits (components). Use `entity.addTrait()` to attach behaviors and `entity.getTrait()` to access them. Traits follow a lifecycle: update → obstruct → collides → finalize.
 
 **Scene Management**: `SceneRunner` orchestrates scene transitions. Levels extend `Scene` and contain entities, collision systems, and rendering layers.
 
 **Collision System**:
-
 - `EntityCollider` handles entity-to-entity collisions
 - `TileCollider` handles entity-to-tile collisions
 - Uses bounding box intersection detection
+
+**Input System**: Unified input handling supporting multiple sources:
+- `KeyboardInputSource` - Traditional keyboard controls
+- `GamepadInputSource` - Controller support
+- `AIInputSource` - AI-driven input for NPCs
+- Access via `inputRouter.getInput(playerIndex)`
 
 **Rendering Pipeline**: `Compositor` manages layered rendering with different layer types (background, sprites, collision debug, UI dashboard, etc.)
 
 **Audio System**: `AudioBoard` manages sound effects, `MusicController` handles background music with looping and transitions.
 
+**AI Systems**:
+- **Pathfinding**: A* pathfinding with `PathfindingSystem` and `Pathfinding` trait
+- **Vision**: `VisionCone` trait for line-of-sight detection
+- **GOAP**: Goal-Oriented Action Planning in `@js2d/traits-ai`
+
 ### Key Directories
 
-- `src/engine/` - Core game engine classes
-- `src/engine/entities/` - Specific entity implementations (Mario, Goomba, etc.)
-- `src/engine/traits/` - Reusable component behaviors
-- `src/engine/layers/` - Rendering layer implementations
-- `src/engine/loaders/` - Asset loading utilities
-- `public/levels/` - Level definition JSON files
-- `public/sprites/` - Sprite animation definitions
+**Engine Package** (`packages/engine/src/`):
+- `Entity.ts`, `Trait.ts`, `Level.ts` - Core ECS classes
+- `traits/` - Built-in traits (Physics, Gravity, Jump, etc.)
+- `layers/` - Rendering layer implementations
+- `loaders/` - Asset loading utilities
+- `input/` - Input system implementations
+- `systems/` - Game systems (PathfindingSystem)
+
+**Game Assets** (`public/`):
+- `levels/` - Level definition JSON files
+- `sprites/` - Sprite animation definitions
+- `audio/` - Sound effects and music
+- `img/` - Sprite sheets and textures
 
 ### Entity Creation Pattern
 
-Entities are created through factory functions in the loaders system. Each entity type has a factory that sets up sprites, traits, and behaviors. The main entity factory is loaded asynchronously and provides access to all entity types.
+```typescript
+// Entity factory pattern
+export function createPawn() {
+  const pawn = new Entity()
+  pawn.size.set(16, 24)
+  
+  // Add traits for behavior composition
+  pawn.addTrait(new Physics())
+  pawn.addTrait(new Gravity())
+  pawn.addTrait(new Go())
+  pawn.addTrait(new Jump())
+  
+  return pawn
+}
+
+// Access traits
+const physics = entity.getTrait(Physics)
+physics.velocity.set(100, 0)
+```
 
 ### Level Loading
 
 Levels are JSON-defined with entities, tiles, backgrounds, and triggers. The level loader creates entities from factories and sets up the complete scene including collision layers and UI elements.
+
+### Input Handling Pattern
+
+```typescript
+// Setup input router with multiple sources
+const inputRouter = new InputRouter()
+inputRouter.addSource(0, new KeyboardInputSource(keyboard))
+inputRouter.addSource(1, new GamepadInputSource())
+inputRouter.addSource(2, new AIInputSource(aiController))
+
+// In entity update
+const input = inputRouter.getInput(playerIndex)
+if (input.jump.pressed) {
+  jump.start()
+}
+```
 
 ## Code Documentation and Commenting Standards
 
