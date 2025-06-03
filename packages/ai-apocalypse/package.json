@@ -1,0 +1,19 @@
+{
+  "name": "@js2d/ai-apocalypse",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@js2d/engine": "workspace:*",
+    "@js2d/traits-ai": "workspace:*",
+    "@js2d/traits-emergent": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.3",
+    "vite": "^5.3.4"
+  }
+}

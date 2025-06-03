@@ -26,7 +26,8 @@ export { Timer } from './Timer'
 
 // Utilities
 export type { Vec2 } from './math'
-export { Animation } from './animation'
+export { createAnimation } from './animation'
+export type { Animation } from './animation'
 export { raise } from './raise'
 export { setupMouseControl } from './debug'
 
@@ -42,6 +43,14 @@ export { Solid } from './traits/Solid'
 export { Stomper } from './traits/Stomper'
 export { Trigger } from './traits/Trigger'
 export { Velocity } from './traits/Velocity'
+export { Pathfinding } from './traits/Pathfinding'
+
+// Systems
+export { PathfindingSystem } from './systems/PathfindingSystem'
+
+// Input System
+export * from './input'
+export { InputManager } from './input/InputSource'
 
 // Layers
 export { createBackgroundLayer } from './layers/background'
@@ -60,4 +69,4 @@ export { loadSpriteSheet } from './loaders/sprite'
 
 // Types
 export type { Dict } from './types'
-export type { AudioSpec, MusicSpec } from './loaders/types'
+// export type { AudioSpec, MusicSpec } from './loaders/types'

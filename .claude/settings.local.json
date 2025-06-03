@@ -10,7 +10,14 @@
       "Bash(pnpm install:*)",
       "Bash(pnpm build:*)",
       "Bash(find:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git reset:*)",
+      "Bash(git restore:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(true)"
     ],
     "deny": []
   }

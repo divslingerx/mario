@@ -17,6 +17,9 @@
   "peerDependencies": {
     "@js2d/engine": "workspace:*"
   },
+  "dependencies": {
+    "bitecs": "^0.3.40"
+  },
   "devDependencies": {
     "typescript": "^5.5.3"
   }

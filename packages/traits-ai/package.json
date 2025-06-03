@@ -18,6 +18,9 @@
     "@js2d/engine": "workspace:*",
     "@js2d/traits-emergent": "workspace:*"
   },
+  "dependencies": {
+    "bitecs": "^0.3.40"
+  },
   "devDependencies": {
     "typescript": "^5.5.3"
   }
